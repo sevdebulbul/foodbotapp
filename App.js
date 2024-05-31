@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat';
 
 export default function App() {
@@ -15,7 +15,11 @@ export default function App() {
       _id:Math.random().toString(36).substring(7),
       text: inputMessage,
       createdAt: new Date(),
-      user: {_id:1}
+      user: {
+        _id: 1,
+        name: 'User',
+        avatar: 'https://placeimg.com/140/140/any',
+      },
     }
     setMessages((previousMessages) => 
       GiftedChat.append(previousMessages, [message])
@@ -24,11 +28,11 @@ export default function App() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer sk-proj-iDI8K98EeCY8rPYJeq9rT3BlbkFJaULFm7hhLVeZbxcpYADb"
+        "Authorization": "Bearer sk-proj-fZA57d5VjmTT4dLCqoKQT3BlbkFJRpUBk8jsozo8heyOHnCo"
       },
       body: JSON.stringify({
         "messages": [{"role": "user", "content": inputMessage }],
-        "model": "gpt-3.5-turbo-instruct",
+        "model": "gpt-3.5-turbo-1106",
       })
       }).then((response) => response.json()).then((data)=>{
         console.log(data.choices[0].message.content);
@@ -37,7 +41,11 @@ export default function App() {
           _id:  Math.random().toString(36).substring(7),
           text: data.choices[0].message.content.trim(),
           createdAt: new Date(),
-          user: {_id: 2}
+          user: {
+            _id: 2,
+            name: 'User',
+            avatar: 'https://placeimg.com/140/140/any',
+          },
         }
         setMessages((previousMessages) => 
           GiftedChat.append(previousMessages, [message])
@@ -51,12 +59,13 @@ export default function App() {
   }
 
   return (
+    
     <View style={{flex:1}}>
+      
       <View style={{flex:1, justifyContent:"center"}}>
       
       <GiftedChat messages={messages} renderInputToolbar={() => {}} user={{_id:1}}/>
       </View>
-      
       <View style={{flexDirection:"row"}}>
         <View style = {{flex:1, marginLeft: 10, marginBottom:20, backgroundColor: "white", 
         borderRadius: 10, borderWidth:1, borderColor: "orange", height: 40, marginLeft: 10, marginRight: 10, justifyContent: "center", paddingLeft: 10, paddingRight:10}}>
@@ -70,8 +79,10 @@ export default function App() {
           </View>
         </TouchableOpacity>
       </View>
-      <StatusBar style="auto" />
+      
+      <StatusBar style="auto"/>
     </View>
+    
   );
 }
 
