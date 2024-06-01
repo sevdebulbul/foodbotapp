@@ -10,36 +10,33 @@ export default function App() {
   const [inputMessage, setInputMessage] = useState('');
   const [outputMessage, setOutputMessage] = useState('');
   const handleButtonClick = () => {
-    console.log(inputMessage);
-    const message = {
-      _id:Math.random().toString(36).substring(7),
-      text: inputMessage,
-      createdAt: new Date(),
-      user: {
-        _id: 1,
-        name: 'User',
-        avatar: 'https://placeimg.com/140/140/any',
-      },
+    // Gelen mesajı analiz etmek için bir fonksiyon
+    const isMealQuestion = (message) => {
+      // Mesajı analiz etmek ve yemekle ilgili bir soru olup olmadığını belirlemek için bir mantık ekle
+      const keywords = ["yemek", "tarif", "malzeme"]; // Yemekle ilgili soru olabilecek anahtar kelimeler
+      return keywords.some(keyword => message.includes(keyword));
     }
-    setMessages((previousMessages) => 
-      GiftedChat.append(previousMessages, [message])
-  );
-    fetch("https://api.openai.com/v1/chat/completions",{
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer sk-proj-fZA57d5VjmTT4dLCqoKQT3BlbkFJRpUBk8jsozo8heyOHnCo"
-      },
-      body: JSON.stringify({
-        "messages": [{"role": "user", "content": inputMessage }],
-        "model": "gpt-3.5-turbo-1106",
-      })
-      }).then((response) => response.json()).then((data)=>{
-        console.log(data.choices[0].message.content);
-        setOutputMessage(data.choices[0].message.content.trim());
+  
+    // Kullanıcıdan gelen mesajı kontrol et
+    if (isMealQuestion(inputMessage)) {
+      // Yemekle ilgili bir soru varsa API'ye sorgu gönder
+      fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer sk-proj-fZA57d5VjmTT4dLCqoKQT3BlbkFJRpUBk8jsozo8heyOHnCo"
+        },
+        body: JSON.stringify({
+          "messages": [{ "role": "user", "content": inputMessage }],
+          "model": "gpt-3.5-turbo-1106",
+        })
+      }).then((response) => response.json()).then((data) => {
+        // API'den gelen yanıtı işle
+        const responseMessage = data.choices[0].message.content.trim();
+        setOutputMessage(responseMessage);
         const message = {
-          _id:  Math.random().toString(36).substring(7),
-          text: data.choices[0].message.content.trim(),
+          _id: Math.random().toString(36).substring(7),
+          text: responseMessage,
           createdAt: new Date(),
           user: {
             _id: 2,
@@ -47,11 +44,16 @@ export default function App() {
             avatar: 'https://placeimg.com/140/140/any',
           },
         }
-        setMessages((previousMessages) => 
+        setMessages((previousMessages) =>
           GiftedChat.append(previousMessages, [message])
-      );
+        );
       })
+    } else {
+      // Yemekle ilgili bir soru yoksa uygun bir mesaj göster
+      setOutputMessage("Üzgünüm, sadece yemekle ilgili soruları cevaplayabilirim.");
+    }
   }
+  
 
   const handleTextInput = (text) => {
     setInputMessage(text);
